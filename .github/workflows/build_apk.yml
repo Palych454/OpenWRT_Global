@@ -20,6 +20,20 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Force JVM 17 for all Android plugins
+        working-directory: ./source
+        run: |
+          cat << 'EOF' >> android/build.gradle.kts
+
+          subprojects {
+              tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+                  compilerOptions {
+                      jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+                  }
+              }
+          }
+          EOF
+
       - name: Get dependencies and build APK
         working-directory: ./source
         run: |
