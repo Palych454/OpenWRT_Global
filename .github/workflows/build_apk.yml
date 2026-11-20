@@ -31,6 +31,8 @@ jobs:
           cp upstream/source/android/build.gradle.kts source/android/build.gradle.kts
           cd source
           sed -i '/aapt2FromMavenOverride/d' android/gradle.properties
+          echo "android.suppressUnsupportedCompileSdk=37" >> android/gradle.properties
+          sed -i -E 's/compileSdk[[:space:]=]+3[0-6]/compileSdk = 37/g' android/app/build.gradle.kts
           cat << 'EOF' >> android/build.gradle.kts
 
           subprojects {
@@ -50,7 +52,7 @@ jobs:
           open(p, 'w', encoding='utf-8').write(s.replace(old, new, 1))
           "
           flutter pub get
-          find ~/.pub-cache/hosted -name "build.gradle" -o -name "build.gradle.kts" | xargs sed -i -E 's/compileSdk(Version)?[[:space:]=]+3[0-5]/compileSdkVersion 36/g'
+          find ~/.pub-cache/hosted -name "build.gradle" -o -name "build.gradle.kts" | xargs sed -i -E 's/compileSdk(Version)?[[:space:]=]+3[0-6]/compileSdkVersion 37/g'
 
       - name: Build APK
         working-directory: ./source
