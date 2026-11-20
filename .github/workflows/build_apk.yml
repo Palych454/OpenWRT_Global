@@ -11,6 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/checkout@v4
+        with:
+          repository: gotical/OpenWRT_Global
+          path: upstream
+
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
@@ -21,9 +26,9 @@ jobs:
           channel: 'stable'
 
       - name: Restore original openwrt_service.dart and apply patch
-        working-directory: ./source
         run: |
-          curl -fsSL https://githubusercontent.com -o lib/services/openwrt_service.dart
+          cp upstream/source/lib/services/openwrt_service.dart source/lib/services/openwrt_service.dart
+          cd source
           sed -i '/aapt2FromMavenOverride/d' android/gradle.properties
           cat << 'EOF' >> android/build.gradle.kts
 
