@@ -20,9 +20,10 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Fix Termux paths and JVM 17
+      - name: Restore original openwrt_service.dart and apply patch
         working-directory: ./source
         run: |
+          curl -fsSL https://githubusercontent.com -o lib/services/openwrt_service.dart
           sed -i '/aapt2FromMavenOverride/d' android/gradle.properties
           cat << 'EOF' >> android/build.gradle.kts
 
@@ -34,6 +35,14 @@ jobs:
               }
           }
           EOF
+          python3 -c "
+          p = 'lib/services/openwrt_service.dart'
+          s = open(p, encoding='utf-8').read()
+          old = 'final fp = utf8.decode(fpBytes);'
+          new = 'String fp; try { fp = utf8.decode(fpBytes); } catch (_) { fp = fpBytes.map((b) => b.toRadixString(16).padLeft(2, \"0\")).join(\":\"); }'
+          assert old in s, 'Target line not found'
+          open(p, 'w', encoding='utf-8').write(s.replace(old, new, 1))
+          "
 
       - name: Get dependencies and build APK
         working-directory: ./source
