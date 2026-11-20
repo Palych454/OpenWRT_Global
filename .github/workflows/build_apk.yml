@@ -33,8 +33,8 @@ jobs:
           cat << 'EOF' >> android/build.gradle.kts
 
           subprojects {
-              tasks.matching { it.name.contains("AarMetadata") }.configureEach {
-                  enabled = false
+              extensions.findByType<com.android.build.api.variant.AndroidComponentsExtension<*, *, *>>()?.finalizeDsl { ext ->
+                  ext.compileSdk = 36
               }
               tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
                   compilerOptions {
