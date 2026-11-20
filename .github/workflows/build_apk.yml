@@ -25,17 +25,15 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Restore original openwrt_service.dart and apply patch
+      - name: Patch source and pub-cache plugins
         run: |
           cp upstream/source/lib/services/openwrt_service.dart source/lib/services/openwrt_service.dart
+          cp upstream/source/android/build.gradle.kts source/android/build.gradle.kts
           cd source
           sed -i '/aapt2FromMavenOverride/d' android/gradle.properties
           cat << 'EOF' >> android/build.gradle.kts
 
           subprojects {
-              extensions.findByType<com.android.build.api.variant.AndroidComponentsExtension<*, *, *>>()?.finalizeDsl { ext ->
-                  ext.compileSdk = 36
-              }
               tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
                   compilerOptions {
                       jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
@@ -51,12 +49,12 @@ jobs:
           assert old in s, 'Target line not found'
           open(p, 'w', encoding='utf-8').write(s.replace(old, new, 1))
           "
-
-      - name: Get dependencies and build APK
-        working-directory: ./source
-        run: |
           flutter pub get
-          flutter build apk --release --android-skip-build-dependency-validation
+          find ~/.pub-cache/hosted -name "build.gradle" -o -name "build.gradle.kts" | xargs sed -i -E 's/compileSdk(Version)?[[:space:]=]+3[0-5]/compileSdkVersion 36/g'
+
+      - name: Build APK
+        working-directory: ./source
+        run: flutter build apk --release --android-skip-build-dependency-validation
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
