@@ -20,9 +20,10 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Force JVM 17 for all Android plugins
+      - name: Fix Termux paths and JVM 17
         working-directory: ./source
         run: |
+          sed -i '/aapt2FromMavenOverride/d' android/gradle.properties
           cat << 'EOF' >> android/build.gradle.kts
 
           subprojects {
