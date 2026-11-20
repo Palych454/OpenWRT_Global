@@ -284,7 +284,6 @@ class OpenWrtService {
     // Fallback: читаем /proc напрямую
     try {
       final memRaw = await runCommand(r"awk '/MemTotal|MemAvailable|MemFree/{print $2}' /proc/meminfo 2>/dev/null || echo '0\n0\n0'");
-Используйте код с осторожностью.
 final memLines = LineSplitter.split(memRaw).toList();
 final memTotal = int.tryParse(memLines.isNotEmpty ? memLines[0] : '0') ?? 0;
 final memAvail = int.tryParse(memLines.length > 1 ? memLines[1] : (memLines.length > 2 ? memLines[2] : '0')) ?? 0;
